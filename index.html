@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Happy Teddy Day ❤️</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #ffd1dc;
+    }
+    h1 {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-family: Arial;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Touch Me 🧸</h1>
+<h2 id="loveMessage" style="
+position:absolute;
+top:80px;
+width:100%;
+text-align:center;
+color:white;
+font-family:Arial;
+opacity:0;
+transform:scale(0.8);
+transition:opacity 1s, transform 1s;
+">
+Happy Teddy Day My Love ❤️
+</h2>
+
+<audio id="bgMusic" src="music.mp3" loop></audio>
+<audio id="squeakSound" src="squeak.mp3"></audio>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffd1dc);
+
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+  scene.add(light);
+
+  camera.position.z = 5;
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+
+  const loader = new THREE.GLTFLoader();
+  let teddy;
+
+  loader.load(
+  "Untitled2.glb",
+  function (gltf) {
+    teddy = gltf.scene;
+
+    // Make teddy bigger
+    teddy.scale.set(2.4, 2.4, 2.4);
+
+    // Center it properly
+    teddy.position.set(0, -0.9, -0.8);
+    teddy.rotation.y = Math.PI/2-3; 
+
+
+    scene.add(teddy);
+  },
+
+    undefined,
+    function (error) {
+      console.error("Model load error:", error);
+    }
+  );
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.innerHTML = "💖";
+    heart.style.position = "absolute";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.top = window.innerHeight + "px";
+    heart.style.fontSize = "24px";
+    heart.style.animation = "floatUp 3s linear forwards";
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 3000);
+  }
+
+  const style = document.createElement("style");
+  style.innerHTML = `
+  @keyframes floatUp {
+    to {
+      transform: translateY(-100vh);
+      opacity: 0;
+    }
+  }`;
+  document.head.appendChild(style);
+
+  let clickCount = 0;
+
+  window.addEventListener("click", () => {
+    if (!teddy) return;
+
+    clickCount++;
+    const squeak = document.getElementById("squeakSound");
+squeak.currentTime = 0;
+squeak.play();
+
+
+    // Squish animation
+    teddy.scale.set(1.25, 0.7, 1.25);
+    setTimeout(() => {
+      teddy.scale.set(0.9, 1.1, 0.9);
+    }, 120);
+    setTimeout(() => {
+      teddy.scale.set(1, 1, 1);
+    }, 250);
+
+    if (clickCount === 3) {
+      const msg = document.getElementById("loveMessage");
+msg.style.opacity = "1";
+msg.style.transform = "scale(1)";
+
+
+      document.getElementById("bgMusic").play();
+
+      setInterval(createHeart, 300);
+
+      let zoomInterval = setInterval(() => {
+        camera.position.z -= 0.05;
+        if (camera.position.z <= 3) {
+          clearInterval(zoomInterval);
+        }
+      }, 16);
+    }
+  });
+</script>
+
+
+</body>
+</html>
