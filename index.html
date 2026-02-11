@@ -46,6 +46,7 @@ Happy Teddy Day My Love ❤️
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js"></script>
 
 <script>
   const scene = new THREE.Scene();
@@ -65,30 +66,30 @@ Happy Teddy Day My Love ❤️
   const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
   scene.add(light);
 
-  camera.position.z = 5;
+  camera.position.set(0, 0, 5);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
 
+  // ✅ DRACO FIX
   const loader = new THREE.GLTFLoader();
+  const dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/");
+  loader.setDRACOLoader(dracoLoader);
+
   let teddy;
 
   loader.load(
-  "teddy.glb",
-  function (gltf) {
-    teddy = gltf.scene;
+    "teddy.glb", // Make sure this matches your file name in GitHub
+    function (gltf) {
+      teddy = gltf.scene;
 
-    // Make teddy bigger
-    teddy.scale.set(2.4, 2.4, 2.4);
+      teddy.scale.set(2.4, 2.4, 2.4);
+      teddy.position.set(0, -0.9, 0);
+      teddy.rotation.y = 0;
 
-    // Center it properly
-    teddy.position.set(0, -0.9, -0.8);
-    teddy.rotation.y = Math.PI/2-3; 
-
-
-    scene.add(teddy);
-  },
-
+      scene.add(teddy);
+    },
     undefined,
     function (error) {
       console.error("Model load error:", error);
@@ -103,6 +104,7 @@ Happy Teddy Day My Love ❤️
 
   animate();
 
+  // Floating hearts
   function createHeart() {
     const heart = document.createElement("div");
     heart.innerHTML = "💖";
@@ -113,19 +115,17 @@ Happy Teddy Day My Love ❤️
     heart.style.animation = "floatUp 3s linear forwards";
     document.body.appendChild(heart);
 
-    setTimeout(() => {
-      heart.remove();
-    }, 3000);
+    setTimeout(() => heart.remove(), 3000);
   }
 
   const style = document.createElement("style");
   style.innerHTML = `
-  @keyframes floatUp {
-    to {
-      transform: translateY(-100vh);
-      opacity: 0;
-    }
-  }`;
+    @keyframes floatUp {
+      to {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+    }`;
   document.head.appendChild(style);
 
   let clickCount = 0;
@@ -134,40 +134,44 @@ Happy Teddy Day My Love ❤️
     if (!teddy) return;
 
     clickCount++;
-    const squeak = document.getElementById("squeakSound");
-squeak.currentTime = 0;
-squeak.play();
 
+    const squeak = document.getElementById("squeakSound");
+    squeak.currentTime = 0;
+    squeak.play();
 
     // Squish animation
-    teddy.scale.set(1.25, 0.7, 1.25);
+    teddy.scale.set(2.4, 1.5, 2.4);
     setTimeout(() => {
-      teddy.scale.set(0.9, 1.1, 0.9);
+      teddy.scale.set(2.2, 2.6, 2.2);
     }, 120);
     setTimeout(() => {
-      teddy.scale.set(1, 1, 1);
+      teddy.scale.set(2.4, 2.4, 2.4);
     }, 250);
 
     if (clickCount === 3) {
       const msg = document.getElementById("loveMessage");
-msg.style.opacity = "1";
-msg.style.transform = "scale(1)";
-
+      msg.style.opacity = "1";
+      msg.style.transform = "scale(1)";
 
       document.getElementById("bgMusic").play();
-
       setInterval(createHeart, 300);
 
       let zoomInterval = setInterval(() => {
         camera.position.z -= 0.05;
-        if (camera.position.z <= 3) {
-          clearInterval(zoomInterval);
-        }
+        if (camera.position.z <= 3) clearInterval(zoomInterval);
       }, 16);
     }
+  });
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
   });
 </script>
 
 
+
 </body>
 </html>
+
