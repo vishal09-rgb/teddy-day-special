@@ -131,46 +131,48 @@ Happy Teddy Day My Love ❤️
 
   let clickCount = 0;
 
-  window.addEventListener("click", () => {
-    if (!teddy) return;
+  function handleInteraction() {
+  if (!teddy) return;
 
-    clickCount++;
+  clickCount++;
 
-    const squeak = document.getElementById("squeakSound");
-    squeak.currentTime = 0;
-    squeak.play();
+  const squeak = document.getElementById("squeakSound");
+  squeak.currentTime = 0;
+  squeak.play();
 
-    // Squish animation
-    teddy.scale.set(2.4, 1.5, 2.4);
-    setTimeout(() => {
-      teddy.scale.set(2.2, 2.6, 2.2);
-    }, 120);
-    setTimeout(() => {
-      teddy.scale.set(2.4, 2.4, 2.4);
-    }, 250);
+  // Squish animation
+  teddy.scale.set(2.4, 1.5, 2.4);
+  setTimeout(() => {
+    teddy.scale.set(2.2, 2.6, 2.2);
+  }, 120);
+  setTimeout(() => {
+    teddy.scale.set(2.4, 2.4, 2.4);
+  }, 250);
 
-    if (clickCount === 3) {
-      const msg = document.getElementById("loveMessage");
-      msg.style.opacity = "1";
-      msg.style.transform = "scale(1)";
+  if (clickCount === 3) {
+    const msg = document.getElementById("loveMessage");
+    msg.style.opacity = "1";
+    msg.style.transform = "scale(1)";
 
-      document.getElementById("bgMusic").play();
-      setInterval(createHeart, 300);
+    document.getElementById("bgMusic").play();
+    setInterval(createHeart, 300);
 
-      let zoomInterval = setInterval(() => {
-        camera.position.z -= 0.05;
-        if (camera.position.z <= 3) clearInterval(zoomInterval);
-      }, 16);
-    }
-  });
+    let zoomInterval = setInterval(() => {
+      camera.position.z -= 0.05;
+      if (camera.position.z <= 3) clearInterval(zoomInterval);
+    }, 16);
+  }
+}
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+// Desktop click
+window.addEventListener("click", handleInteraction);
+
+// Mobile touch
+window.addEventListener("touchstart", handleInteraction);
+
 </script>
 
 
 </body>
 </html>
+
