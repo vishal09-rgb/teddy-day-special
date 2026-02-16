@@ -49,89 +49,165 @@ Happy Teddy Day My Love ❤️
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js"></script>
 
 <script>
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffd1dc);
 
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffd1dc);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 
-  const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-  scene.add(light);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-  camera.position.set(0, 0, 5);
+const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+scene.add(light);
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+camera.position.set(0, 0, 5);
 
-  // ✅ DRACO FIX
-  const loader = new THREE.GLTFLoader();
-  const dracoLoader = new THREE.DRACOLoader();
-  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/");
-  loader.setDRACOLoader(dracoLoader);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.minDistance = 3;
+controls.maxDistance = 6;
+controls.minPolarAngle = Math.PI / 3;
+controls.maxPolarAngle = Math.PI / 1.8;
 
-  let teddy;
+const loader = new THREE.GLTFLoader();
+const dracoLoader = new THREE.DRACOLoader();
+dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/");
+loader.setDRACOLoader(dracoLoader);
 
-  loader.load(
-    "teddy.glb", // Make sure this matches your file name in GitHub
-    function (gltf) {
-      teddy = gltf.scene;
+let teddy;
 
-      teddy.scale.set(2.3, 2.3, 2.3);
-      teddy.position.set(0, -1.5, 0);
-      teddy.rotation.y = 0;
-      teddy.rotation.y = -Math.PI / 2;
+loader.load(
+  "teddy.glb",
+  function (gltf) {
+    teddy = gltf.scene;
 
-      scene.add(teddy);
-    },
-    undefined,
-    function (error) {
-      console.error("Model load error:", error);
-    }
-  );
+    teddy.scale.set(2.3, 2.3, 2.3);
+    teddy.position.set(0, -1.5, 0);
+    teddy.rotation.y = -Math.PI / 2;
 
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
+    scene.add(teddy);
   }
+);
 
-  animate();
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
 
-  // Floating hearts
-  function createHeart() {
-    const heart = document.createElement("div");
-    heart.innerHTML = "💖";
-    heart.style.position = "absolute";
-    heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.top = window.innerHeight + "px";
-    heart.style.fontSize = "24px";
-    heart.style.animation = "floatUp 3s linear forwards";
-    document.body.appendChild(heart);
 
-    setTimeout(() => heart.remove(), 3000);
-  }
+// ❤️ FLOATING HEARTS
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.innerHTML = "💖";
+  heart.style.position = "absolute";
+  heart.style.left = Math.random() * window.innerWidth + "px";
+  heart.style.top = window.innerHeight + "px";
+  heart.style.fontSize = "24px";
+  heart.style.animation = "floatUp 3s linear forwards";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 3000);
+}
 
-  const style = document.createElement("style");
-  style.innerHTML = `
-    @keyframes floatUp {
-      to {
-        transform: translateY(-100vh);
-        opacity: 0;
-      }
-    }`;
-  document.head.appendChild(style);
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes floatUp {
+  to { transform: translateY(-100vh); opacity: 0; }
+}`;
+document.head.appendChild(style);
 
-  let clickCount = 0;
 
-  function handleInteraction() {
+// 🔥 NOTE SYSTEM
+let noteOpen = false;
+
+const noteBtn = document.createElement("button");
+noteBtn.innerText = "Open Note 💌";
+noteBtn.style.position = "absolute";
+noteBtn.style.bottom = "20px";
+noteBtn.style.left = "50%";
+noteBtn.style.transform = "translateX(-50%)";
+noteBtn.style.padding = "10px 20px";
+noteBtn.style.borderRadius = "20px";
+noteBtn.style.border = "none";
+noteBtn.style.background = "#ff4f81";
+noteBtn.style.color = "white";
+noteBtn.style.cursor = "pointer";
+document.body.appendChild(noteBtn);
+
+const noteBox = document.createElement("div");
+noteBox.innerHTML = `
+<h2>My Love ❤️</h2>
+<p>You are the cutest human alive.  
+Every squeeze is a hug from me.</p>
+<button id="closeNote">Close</button>
+`;
+noteBox.style.position = "fixed";
+noteBox.style.top = "50%";
+noteBox.style.left = "50%";
+noteBox.style.transform = "translate(-50%,-50%)";
+noteBox.style.background = "white";
+noteBox.style.padding = "30px";
+noteBox.style.borderRadius = "20px";
+noteBox.style.textAlign = "center";
+noteBox.style.display = "none";
+noteBox.style.zIndex = "1000";
+document.body.appendChild(noteBox);
+
+noteBtn.onclick = () => {
+  noteOpen = true;
+  controls.enabled = false;
+  noteBox.style.display = "block";
+  renderer.domElement.style.filter = "blur(10px)";
+  if (teddy) teddy.rotation.y = Math.PI;
+};
+
+document.getElementById("closeNote").onclick = () => {
+  noteOpen = false;
+  controls.enabled = true;
+  noteBox.style.display = "none";
+  renderer.domElement.style.filter = "none";
+  if (teddy) teddy.rotation.y = -Math.PI / 2;
+};
+
+
+// 🔊 MUTE BUTTON
+const muteBtn = document.createElement("button");
+muteBtn.innerText = "Mute 🔊";
+muteBtn.style.position = "absolute";
+muteBtn.style.top = "20px";
+muteBtn.style.right = "20px";
+muteBtn.style.padding = "8px 15px";
+muteBtn.style.borderRadius = "15px";
+muteBtn.style.border = "none";
+muteBtn.style.background = "#ff4f81";
+muteBtn.style.color = "white";
+muteBtn.style.cursor = "pointer";
+document.body.appendChild(muteBtn);
+
+let muted = false;
+muteBtn.onclick = () => {
+  const music = document.getElementById("bgMusic");
+  muted = !muted;
+  music.muted = muted;
+  muteBtn.innerText = muted ? "Unmute 🔇" : "Mute 🔊";
+};
+
+
+// 🎯 SQUEEZE SYSTEM (PHONE FIXED)
+let clickCount = 0;
+
+renderer.domElement.addEventListener("pointerup", () => {
+
+  if (noteOpen) return;
   if (!teddy) return;
 
   clickCount++;
@@ -140,39 +216,24 @@ Happy Teddy Day My Love ❤️
   squeak.currentTime = 0;
   squeak.play();
 
-  // Squish animation
   teddy.scale.set(2.4, 1.5, 2.4);
-  setTimeout(() => {
-    teddy.scale.set(2.2, 2.6, 2.2);
-  }, 120);
-  setTimeout(() => {
-    teddy.scale.set(2.4, 2.4, 2.4);
-  }, 250);
+  setTimeout(() => teddy.scale.set(2.2, 2.6, 2.2), 120);
+  setTimeout(() => teddy.scale.set(2.3, 2.3, 2.3), 250);
 
   if (clickCount === 3) {
     const msg = document.getElementById("loveMessage");
     msg.style.opacity = "1";
     msg.style.transform = "scale(1)";
-
     document.getElementById("bgMusic").play();
     setInterval(createHeart, 300);
-
-    let zoomInterval = setInterval(() => {
-      camera.position.z -= 0.05;
-      if (camera.position.z <= 3) clearInterval(zoomInterval);
-    }, 16);
   }
-}
+});
 
-// Desktop click
-window.addEventListener("click", handleInteraction);
 
-// Mobile touch
-window.addEventListener("touchstart", handleInteraction);
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 </script>
-
-
-</body>
-</html>
-
