@@ -221,12 +221,29 @@ renderer.domElement.addEventListener("pointerup", () => {
   setTimeout(() => teddy.scale.set(2.3, 2.3, 2.3), 250);
 
   if (clickCount === 3) {
-    const msg = document.getElementById("loveMessage");
-    msg.style.opacity = "1";
-    msg.style.transform = "scale(1)";
-    document.getElementById("bgMusic").play();
-    setInterval(createHeart, 300);
-  }
+
+  const msg = document.getElementById("loveMessage");
+  msg.style.opacity = "1";
+  msg.style.transform = "scale(1)";
+
+  document.getElementById("bgMusic").play();
+  setInterval(createHeart, 300);
+
+  // 💖 HUG ZOOM EFFECT
+  let zoomInterval = setInterval(() => {
+    camera.position.z -= 0.05;
+
+    if (camera.position.z <= 3.2) {
+      clearInterval(zoomInterval);
+
+      // Optional: slight bounce back (cute effect)
+      setTimeout(() => {
+        camera.position.z = 3.4;
+      }, 150);
+    }
+  }, 16);
+}
+
 });
 
 
@@ -237,3 +254,4 @@ window.addEventListener("resize", () => {
 });
 
 </script>
+
